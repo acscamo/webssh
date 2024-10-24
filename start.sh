@@ -37,19 +37,21 @@ echo -e "\e[1;34mStarting webssh...\e[0m"
 
 # 直接运行 webssh
 if [ -z "${USER}" ] || [ -z "${PASS}" ]; then
-    if ! "${FILENAME}" -p "${PORT}"; then
+    echo "Starting webssh without credentials..."
+    "${FILENAME}" -p "${PORT}" || {
         echo -e "\e[1;31mFailed to start webssh on port ${PORT}. Exiting.\e[0m"
         exit 1
-    fi
+    }
 else
-    if ! "${FILENAME}" -p "${PORT}" -a "${USER}:${PASS}"; then
+    echo "Starting webssh with credentials..."
+    "${FILENAME}" -p "${PORT}" -a "${USER}:${PASS}" || {
         echo -e "\e[1;31mFailed to start webssh with credentials on port ${PORT}. Exiting.\e[0m"
         exit 1
-    fi
+    }
 fi
 
 # 检查端口
-sleep 2  # 等待服务启动
+sleep 6  # 等待服务启动
 if nc -z localhost "${PORT}"; then
     echo -e "\e[1;32mwebssh is running on port ${PORT}\e[0m"
 else

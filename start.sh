@@ -25,19 +25,29 @@ else
     echo -e "\e[1;32mDownloading $FILENAME\e[0m"
 fi
 
-wait
-
 # 启动 webssh
 if [ -e "${FILE_PATH}/webssh" ]; then
-    chmod +x "${FILE_PATH}/webssh"  # 确保可执行权限
+    chmod +x "${FILE_PATH}/webssh"
     
     echo -e "\e[1;34mStarting webssh...\e[0m"
     
     if [ -z "${USER}" ] || [ -z "${PASS}" ]; then
-        nohup "${FILE_PATH}/webssh" -p "${PORT}" >/dev/null 2>&1 &
+        "${FILE_PATH}/webssh" -p "${PORT}" >/dev/null 2>&1 &
     else
-        nohup "${FILE_PATH}/webssh" -p "${PORT}" -a "${USER}:${PASS}" >/dev/null 2>&1 &
+        "${FILE_PATH}/webssh" -p "${PORT}" -a "${USER}:${PASS}" >/dev/null 2>&1 &
     fi
+    
+    # 检查端口
+    sleep 2  # 等待服务启动
+    if nc -z localhost "${PORT}"; then
+        echo -e "\e[1;32mwebssh is running on port ${PORT}\e[0m"
+    else
+        echo -e "\e[1;31mwebssh failed to start on port ${PORT}\e[0m"
+        exit 1
+    fi
+else
+    echo -e "\e[1;31mwebssh not found in ${FILE_PATH}\e[0m"
+fi
 
     sleep 3
     if pgrep -x "webssh" > /dev/null; then
